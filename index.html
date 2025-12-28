@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crisis Response Command Center</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div class="command-center-grid">
+        <!-- Header -->
+        <header class="top-bar">
+            <h1><i class="alert-icon"></i> CRISIS CMND</h1>
+            <div style="display:flex; align-items:center;">
+                <button id="cluster-btn" class="chaos-btn"
+                    style="border-color:var(--accent-amber); color:var(--accent-amber); margin-right:5px;">💥
+                    CLUSTER</button>
+                <button id="chaos-btn" class="chaos-btn">⚠ CHAOS MODE</button>
+                <div class="system-time" id="system-time">00:00:00</div>
+            </div>
+        </header>
+
+        <!-- Main Map Display -->
+        <main class="map-container">
+            <div id="map"></div>
+            <div class="map-overlay-stats">
+                <div class="stat-box">
+                    <span class="label">ACTIVE INCIDENTS</span>
+                    <span class="value critical" id="stat-incidents">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">AVAILABLE UNITS</span>
+                    <span class="value good" id="stat-units">0</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Sidebar Panels -->
+        <aside class="sidebar">
+            <!-- Incident List -->
+            <section class="panel incident-panel">
+                <h2>ACTIVE INCIDENTS</h2>
+                <div class="panel-content" id="incident-list">
+                    <!-- Dynamic Incident Items -->
+                </div>
+            </section>
+
+            <!-- Unit Status -->
+            <section class="panel unit-panel">
+                <h2>UNIT STATUS</h2>
+                <div class="panel-content" id="unit-list">
+                    <!-- Dynamic Unit Items -->
+                </div>
+            </section>
+
+            <!-- Event Log -->
+            <section class="panel log-panel">
+                <h2>EVENT LOG</h2>
+                <div class="panel-content" id="event-log">
+                    <!-- Dynamic Logs -->
+                </div>
+            </section>
+
+            <!-- Command Console -->
+            <section class="panel console-panel">
+                <div class="input-group">
+                    <span class="console-prompt">></span>
+                    <input type="text" id="command-input"
+                        placeholder="Type command or press Mic... (/deploy unit=1 incident=2)" autocomplete="off">
+                    <button id="mic-btn" class="icon-btn" title="Voice Command">🎤</button>
+                    <div id="mic-status" class="mic-indicator"></div>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Application Modules -->
+    <script type="module" src="utils.js"></script>
+    <script type="module" src="units.js"></script>
+    <script type="module" src="incidents.js"></script>
+    <script type="module" src="map.js"></script>
+    <script type="module" src="simulation.js"></script>
+    <script type="module" src="commands.js"></script>
+    <script type="module" src="app.js"></script>
+
+</body>
+
+</html>
