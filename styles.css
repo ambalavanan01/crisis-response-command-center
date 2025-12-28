@@ -200,6 +200,12 @@ body::after {
 }
 
 /* Section Heights */
+.report-panel {
+    flex: 1.5;
+    min-height: 0;
+    border-bottom: 2px solid var(--accent-amber);
+}
+
 .incident-panel {
     flex: 2;
     min-height: 0;
@@ -218,6 +224,43 @@ body::after {
 .console-panel {
     flex: 0 0 80px;
     border-bottom: none;
+}
+
+/* Report Items (Yellow Warning Theme) */
+.report-item {
+    background: rgba(255, 170, 0, 0.1);
+    border: 1px solid var(--accent-amber);
+    border-left: 4px solid var(--accent-amber);
+    padding: 10px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.report-info {
+    color: var(--accent-amber);
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+}
+
+.dispatch-btn {
+    background: transparent;
+    border: 1px solid var(--accent-green);
+    color: var(--accent-green);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+}
+
+.dispatch-btn:hover {
+    background: var(--accent-green);
+    color: #000;
+    box-shadow: 0 0 8px var(--accent-green);
 }
 
 /* Log Styles */

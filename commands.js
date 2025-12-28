@@ -60,11 +60,15 @@ export class CommandSystem {
         // Regex Patterns
         // /deploy unit=X incident=Y
         // "Deploy Unit X to Incident Y"
-        const deployRegex = /(?:deploy|dispatch|send)\s+(?:unit\s+)?([a-z0-9-]+)\s+(?:to|at)?\s+(?:incident\s+)?([a-z0-9-]+)/i;
+        // Regex Patterns
+        // 1. Standard: "Deploy Unit A-1 to Incident INC-2"
+        // 2. Conversational: "A-1 go to INC-2"
+        const deployRegex = /(?:deploy|dispatch|send|assign)?\s*(?:unit\s+)?([a-z0-9-]+)\s+(?:to|at|go\s+to)\s+(?:incident\s+)?([a-z0-9-]+)/i;
 
         // /create_incident type=fire lat=34.1 lng=-118.2
         // "Create fire at sector 34.1, -118.2" (Hard to parse coords via voice, supporting simplified creates)
-        const createRegex = /create\s+(?:incident\s+)?(fire|medical|crash|flood|hazardous)/i;
+        // Updated to include new types: food, water, injury
+        const createRegex = /create\s+(?:incident\s+)?(fire|medical|crash|flood|hazardous|food|water|injury|minor)/i;
 
         // /status unit=X status=out_of_service
         const statusRegex = /set\s+(?:unit\s+)?([a-z0-9-]+)\s+(?:status\s+)?(available|out_of_service|busy)/i;
@@ -81,7 +85,12 @@ export class CommandSystem {
 
         // CREATE
         if (match = text.match(createRegex)) {
-            const type = match[1];
+            let type = match[1];
+            // Alias Mapping
+            if (type === 'food') type = 'food_shortage';
+            if (type === 'water') type = 'water_shortage';
+            if (type === 'injury' || type === 'minor') type = 'minor_injury';
+
             // Random location for now if not specified
             this.sim.manualCreateIncident(type);
             return;

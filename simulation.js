@@ -77,6 +77,13 @@ export class SimulationEngine {
             this.incidentTimer = 0;
         }
 
+        // 1.5. Retry Dispatch for Pending Incidents
+        incidentManager.incidents.forEach(inc => {
+            if (!inc.resolved && inc.assignedUnits.length === 0) {
+                this.autoDispatch(inc);
+            }
+        });
+
         // 2. Incident Logic
         incidentManager.update(deltaTime);
         // Check for resolved incidents to clean up
@@ -122,16 +129,54 @@ export class SimulationEngine {
 
     // --- Dispatch Logic ---
     autoDispatch(incident) {
+        // High Severity or Emergency Types = Auto Dispatch
+        // User Request: Only Fire, Ambulance (Medical/Crash) are Emergency.
+        // Minor Injury moved to Citizen Reports (Manual).
+        const isEmergency = incident.severity > 3 ||
+            ['fire', 'crash', 'medical', 'flood', 'hazardous'].includes(incident.type);
+
+        if (!isEmergency) {
+            // Food and Water shortages wait for manual/tap dispatch
+            if (!incident.manualDispatchWaiting) {
+                Utils.Logger.log('DISPATCH', `Incident ${incident.id} (${incident.type}) Waiting for Citizen Report Action.`);
+                incident.manualDispatchWaiting = true;
+            }
+            return;
+        }
+
+        this._performDispatch(incident);
+    }
+
+    // New method for "Tap to Dispatch"
+    forceAutoDispatch(incidentId) {
+        const incident = incidentManager.getIncident(incidentId);
+        if (!incident) return { success: false, message: "Incident not found" };
+
+        const result = this._performDispatch(incident);
+
+        if (result) {
+            incident.manualDispatchWaiting = false; // Clear waiting flag
+            return { success: true, message: "Unit Dispatched" };
+        } else {
+            return { success: false, message: "No Units Available" };
+        }
+    }
+
+    _performDispatch(incident) {
         // Simple logic: Find 1 nearest appropriate unit
-        // Fire -> Fire Truck, Medical -> Ambulance
         let requiredType = 'Fire';
-        if (incident.type === 'medical' || incident.type === 'crash') requiredType = 'Ambulance';
+        if (incident.type === 'medical' || incident.type === 'crash' || incident.type === 'minor_injury') requiredType = 'Ambulance';
+        // Note: Logic allows Ambulance for minor_injury if FirstAid unavailable? 
+        // Or strictly FirstAid? User asked for FirstAid units.
+        // Let's stick to strict types for now, but fallback if needed.
+        if (incident.type === 'minor_injury') requiredType = 'FirstAid';
+        if (incident.type === 'food_shortage') requiredType = 'FoodSupply';
+        if (incident.type === 'water_shortage') requiredType = 'WaterTanker';
 
         const available = unitManager.getAvailableUnits(requiredType);
 
         if (available.length === 0) {
-            Utils.Logger.log('DISPATCH', `WARNING: No units available for ${incident.id}`);
-            return;
+            return false;
         }
 
         // Find nearest
@@ -148,7 +193,9 @@ export class SimulationEngine {
 
         if (nearest) {
             this.assignUnit(nearest, incident);
+            return true;
         }
+        return false;
     }
 
     manualDispatch(unitId, incidentId) {

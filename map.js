@@ -124,7 +124,10 @@ export class MapManager {
             'medical': '#33b5e5',
             'crash': '#ffbb33',
             'flood': '#00C851',
-            'hazardous': '#aa66cc'
+            'hazardous': '#aa66cc',
+            'food_shortage': '#FFA500', // Orange
+            'water_shortage': '#00FFFF', // Cyan
+            'minor_injury': '#FF69B4'  // HotPink
         };
 
         const color = colors[incident.type] || '#fff';

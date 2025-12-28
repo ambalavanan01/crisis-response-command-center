@@ -34,9 +34,29 @@ export class UnitManager {
         for (let i = 1; i <= 5; i++) {
             this.units.push(new Unit('Fire', `F-${i}`, centerLat, centerLng));
         }
-        // Create 3 Ambulances
-        for (let i = 1; i <= 3; i++) {
+        // Create 5 Ambulances
+        for (let i = 1; i <= 5; i++) {
             this.units.push(new Unit('Ambulance', `A-${i}`, centerLat, centerLng));
+        }
+
+        // Create 5 Shelters
+        for (let i = 1; i <= 5; i++) {
+            this.units.push(new Unit('Shelters', `S-${i}`, centerLat, centerLng));
+        }
+
+        // Create 5 FirstAid Units
+        for (let i = 1; i <= 5; i++) {
+            this.units.push(new Unit('FirstAid', `FA-${i}`, centerLat, centerLng));
+        }
+
+        // Create 5 FoodSupply Units
+        for (let i = 1; i <= 5; i++) {
+            this.units.push(new Unit('FoodSupply', `FS-${i}`, centerLat, centerLng));
+        }
+
+        // Create 5 WaterTanker Units
+        for (let i = 1; i <= 5; i++) {
+            this.units.push(new Unit('WaterTanker', `WT-${i}`, centerLat, centerLng));
         }
     }
 
@@ -56,25 +76,25 @@ export class UnitManager {
         this.units.forEach(unit => {
             if (unit.status === 'out-of-service') return;
 
-            // Fuel decay
-            if (unit.status !== 'available') {
-                unit.fuel -= 0.005 * deltaTime;
-            } else {
-                unit.fuel -= 0.001 * deltaTime; // Idling
-            }
+            // Fuel decay - DISABLED for infinite uptime
+            // if (unit.status !== 'available') {
+            //     unit.fuel -= 0.005 * deltaTime;
+            // } else {
+            //     unit.fuel -= 0.001 * deltaTime; // Idling
+            // }
 
-            // Fatigue
-            if (unit.status === 'busy') {
-                unit.fatigue += 0.01 * deltaTime;
-            } else {
-                unit.fatigue = Math.max(0, unit.fatigue - 0.02 * deltaTime);
-            }
+            // Fatigue - DISABLED for infinite uptime
+            // if (unit.status === 'busy') {
+            //     unit.fatigue += 0.01 * deltaTime;
+            // } else {
+            //     unit.fatigue = Math.max(0, unit.fatigue - 0.02 * deltaTime);
+            // }
 
-            // Auto-out-of-service if fuel low or fatigue high
-            if (unit.fuel <= 0 || unit.fatigue >= 100) {
-                unit.status = 'out-of-service';
-                Utils.Logger.log('SYSTEM', `Unit ${unit.id} out of service (Fuel/Fatigue).`);
-            }
+            // Auto-out-of-service if fuel low or fatigue high - DISABLED
+            // if (unit.fuel <= 0 || unit.fatigue >= 100) {
+            //     unit.status = 'out-of-service';
+            //     Utils.Logger.log('SYSTEM', `Unit ${unit.id} out of service (Fuel/Fatigue).`);
+            // }
 
             // Movement logic
             if (unit.status === 'en-route' && unit.targetLat && unit.targetLng) {

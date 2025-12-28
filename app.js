@@ -100,6 +100,7 @@ class App {
             // Render Lists
             this.renderIncidentList();
             this.renderUnitList();
+            this.renderReportList();
         } catch (e) {
             console.error("UI Loop Error:", e);
         }
@@ -109,10 +110,15 @@ class App {
 
     renderIncidentList() {
         const container = document.getElementById('incident-list');
-        // Simple DOM Diff or Clear/Redraw. For vanilla JS & small lists, clear/redraw is easiest.
-        container.innerHTML = '';
+        // Filter active non-waiting
+        const active = incidentManager.incidents.filter(i => !i.resolved && !i.manualDispatchWaiting);
 
-        const active = incidentManager.incidents.filter(i => !i.resolved);
+        // Simple hash check to avoid re-render
+        const newHash = active.map(i => i.id + i.severity.toFixed(1) + i.assignedUnits.length).join('|');
+        if (this._lastIncidentHash === newHash) return;
+        this._lastIncidentHash = newHash;
+
+        container.innerHTML = '';
         if (active.length === 0) {
             container.innerHTML = '<div style="color:var(--text-secondary); padding:10px;">No Active Incidents</div>';
             return;
@@ -134,10 +140,61 @@ class App {
         });
     }
 
+    renderReportList() {
+        const container = document.getElementById('report-list');
+        if (!container) return;
+
+        // Filter active & waiting
+        const reports = incidentManager.incidents.filter(i => !i.resolved && i.manualDispatchWaiting);
+
+        // Check if change needed
+        const newHash = reports.map(i => i.id).join('|');
+        if (this._lastReportHash === newHash) return;
+        this._lastReportHash = newHash;
+
+        container.innerHTML = '';
+        if (reports.length === 0) {
+            container.innerHTML = '<div style="color:var(--text-secondary); padding:10px; font-size:0.8rem;">No New Reports</div>';
+            return;
+        }
+
+        reports.forEach(inc => {
+            const div = document.createElement('div');
+            div.className = 'report-item';
+            div.innerHTML = `
+                <div class="report-info">
+                    <div>${inc.type.toUpperCase()} REPORT</div>
+                    <div style="font-size:0.8em; color:var(--text-secondary)">ID: ${inc.id}</div>
+                </div>
+                <button class="dispatch-btn" data-id="${inc.id}">DISPATCH</button>
+            `;
+
+            // Bind Click
+            const btn = div.querySelector('.dispatch-btn');
+            btn.addEventListener('click', () => {
+                const result = simulationEngine.forceAutoDispatch(inc.id);
+                if (result.success) {
+                    Utils.Logger.log('OPERATOR', `Report ${inc.id} Dispatched via Tap.`);
+                    // Force re-render on next loop allows hash update to catch it, 
+                    // but we can also manually invalidate/update immediately if we wanted.
+                    // The loop picks it up since manualDispatchWaiting becomes false.
+                } else {
+                    alert("No Units Available for this Report!");
+                }
+            });
+
+            container.appendChild(div);
+        });
+    }
+
     renderUnitList() {
         const container = document.getElementById('unit-list');
-        container.innerHTML = '';
 
+        const newHash = unitManager.units.map(u => u.id + u.status).join('|');
+        if (this._lastUnitHash === newHash) return;
+        this._lastUnitHash = newHash;
+
+        container.innerHTML = '';
         unitManager.units.forEach(u => {
             const div = document.createElement('div');
             div.className = 'unit-item';
